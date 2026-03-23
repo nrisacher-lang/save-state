@@ -1,65 +1,121 @@
-import Image from "next/image";
+import Card from "@/components/Card";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main className="max-w-3xl mx-auto w-full px-6 py-12">
+      {/* Header */}
+      <header className="mb-10">
+        <div
+          className="text-xs tracking-widest uppercase mb-2"
+          style={{
+            fontFamily: "var(--font-share-tech), monospace",
+            color: "var(--text-muted)",
+          }}
+        >
+          Understory Labs
+        </div>
+        <h1
+          className="text-3xl font-bold mb-2"
+          style={{
+            fontFamily: "var(--font-jetbrains), monospace",
+            color: "var(--text-primary)",
+          }}
+        >
+          Save State
+        </h1>
+        <p
+          className="text-xs tracking-widest"
+          style={{
+            fontFamily: "var(--font-share-tech), monospace",
+            color: "var(--text-secondary)",
+          }}
+        >
+          0 ENTRIES
+        </p>
+        <div
+          className="mt-6"
+          style={{
+            height: "1px",
+            background: `linear-gradient(to right, var(--accent-glow), var(--accent), var(--accent-glow), transparent)`,
+          }}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+      </header>
+
+      {/* Filter buttons placeholder */}
+      <div className="flex gap-2 mb-8 flex-wrap">
+        {[
+          { label: "ALL", active: true },
+          { label: "CURRENT OS", active: false },
+          { label: "BARK", active: false },
+          { label: "SAVE STATE", active: false },
+        ].map(({ label, active }) => (
+          <button
+            key={label}
+            className="px-3 py-1 rounded-full text-xs border transition-colors duration-150 cursor-pointer"
+            style={{
+              fontFamily: "var(--font-share-tech), monospace",
+              letterSpacing: "0.06em",
+              background: active ? "var(--accent)" : "transparent",
+              color: active ? "var(--bg-base)" : "var(--text-muted)",
+              borderColor: active ? "var(--accent)" : "var(--border)",
+            }}
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Sample entry — replaced in Step 3 */}
+      <div className="space-y-3">
+        <div
+          className="text-xs tracking-widest uppercase"
+          style={{
+            fontFamily: "var(--font-share-tech), monospace",
+            color: "var(--text-muted)",
+          }}
+        >
+          March 23, 2026
         </div>
-      </main>
-    </div>
+        <Card projectId="save-state">
+          <div className="flex items-center gap-2 mb-3">
+            <span
+              className="text-xs px-2 py-0.5 rounded-full"
+              style={{
+                fontFamily: "var(--font-share-tech), monospace",
+                letterSpacing: "0.06em",
+                background: "var(--bg-elevated)",
+                color: "var(--project-save-state)",
+                border: "1px solid var(--project-save-state)",
+              }}
+            >
+              SAVE STATE
+            </span>
+          </div>
+          <h2
+            className="text-base mb-3"
+            style={{
+              fontFamily: "var(--font-dm-sans), sans-serif",
+              color: "var(--text-primary)",
+              fontWeight: 500,
+            }}
+          >
+            Design system scaffold
+          </h2>
+          <div className="entry-content">
+            <h2>Features</h2>
+            <ul>
+              <li>Design system established — amber/charcoal palette, three-tier typography</li>
+              <li>Next.js 16 + Tailwind CSS v4 scaffold with static export</li>
+              <li>Base Card component with project-colored left border accent</li>
+            </ul>
+            <h2>Infrastructure</h2>
+            <ul>
+              <li>JetBrains Mono, Share Tech Mono, DM Sans loaded via next/font/google</li>
+              <li>CSS custom properties defined — colors, fonts, project accents</li>
+            </ul>
+          </div>
+        </Card>
+      </div>
+    </main>
   );
 }
