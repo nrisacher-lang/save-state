@@ -72,7 +72,11 @@ export default function EntryList({ entries, projects }: EntryListProps) {
               </div>
               <div className="space-y-3">
                 {grouped[date].map((entry) => (
-                  <EntryCard key={entry.slug} entry={entry} />
+                  <EntryCard
+                    key={entry.slug}
+                    entry={entry}
+                    animationDelay={filtered.indexOf(entry) * 80}
+                  />
                 ))}
               </div>
             </div>

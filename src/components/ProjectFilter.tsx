@@ -17,10 +17,13 @@ export default function ProjectFilter({
 }: ProjectFilterProps) {
   return (
     <div className="mb-8">
-      <div className="flex gap-2 flex-wrap mb-3">
+      <div
+        className="flex gap-2 overflow-x-auto pb-2 mb-1 scrollbar-thin"
+        style={{ scrollbarWidth: "none" }}
+      >
         <button
           onClick={() => onSelect(null)}
-          className="px-3 py-1 rounded-full text-xs border transition-colors duration-150 cursor-pointer"
+          className="shrink-0 px-3 py-1 rounded-full text-xs border transition-colors duration-150 cursor-pointer whitespace-nowrap"
           style={{
             fontFamily: "var(--font-share-tech), monospace",
             letterSpacing: "0.06em",
@@ -37,7 +40,7 @@ export default function ProjectFilter({
             <button
               key={project.id}
               onClick={() => onSelect(project.id)}
-              className="px-3 py-1 rounded-full text-xs border transition-colors duration-150 cursor-pointer"
+              className="shrink-0 px-3 py-1 rounded-full text-xs border transition-colors duration-150 cursor-pointer whitespace-nowrap"
               style={{
                 fontFamily: "var(--font-share-tech), monospace",
                 letterSpacing: "0.06em",
