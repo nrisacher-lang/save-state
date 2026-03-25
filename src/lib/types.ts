@@ -17,3 +17,29 @@ export interface ProjectSummary {
   entryCount: number;
   lastActive: string; // date of most recent entry
 }
+
+// Supabase-backed types
+
+export interface Project {
+  id: string; // kebab-case, matches entry frontmatter project IDs
+  displayName: string;
+  tagline: string;
+  description: string; // markdown — rendered on project page
+  techStack: string[];
+  status: "active" | "planned" | "archived";
+  color: string; // hex
+  url: string | null;
+  repoUrl: string | null;
+  icon: string | null;
+  sortOrder: number;
+}
+
+export interface Feature {
+  id: string;
+  projectId: string; // FK → projects.id
+  name: string;
+  description: string | null;
+  status: "shipped" | "in-progress" | "planned";
+  shippedDate: string | null; // YYYY-MM-DD
+  sortOrder: number;
+}

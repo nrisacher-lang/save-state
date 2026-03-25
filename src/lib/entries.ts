@@ -11,7 +11,7 @@ import { PROJECT_NAMES } from "./config";
 
 const ENTRIES_DIR = path.join(process.cwd(), "content", "entries");
 
-async function markdownToHtml(content: string): Promise<string> {
+export async function markdownToHtml(content: string): Promise<string> {
   const result = await unified()
     .use(remarkParse)
     .use(remarkRehype)
