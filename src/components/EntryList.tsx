@@ -21,6 +21,7 @@ function formatDateLabel(dateStr: string): string {
 
 export default function EntryList({ entries, projects }: EntryListProps) {
   const [activeProject, setActiveProject] = useState<string | null>(null);
+  const projectNames = Object.fromEntries(projects.map((p) => [p.id, p.displayName]));
 
   const filtered =
     activeProject === null
@@ -76,6 +77,7 @@ export default function EntryList({ entries, projects }: EntryListProps) {
                     key={entry.slug}
                     entry={entry}
                     animationDelay={filtered.indexOf(entry) * 80}
+                    projectDisplayName={projectNames[entry.frontmatter.project]}
                   />
                 ))}
               </div>

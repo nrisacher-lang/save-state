@@ -30,6 +30,7 @@ export default async function HomePage() {
 
   const activeProjects = projects.filter((p) => p.status === "active");
   const recentEntries = entries.slice(0, 5);
+  const projectNames = Object.fromEntries(projects.map((p) => [p.id, p.displayName]));
 
   return (
     <main className="w-full px-6 md:px-10 lg:px-16 py-12 flex-1">
@@ -60,7 +61,7 @@ export default async function HomePage() {
             RECENT ACTIVITY
           </h2>
           <div className="max-w-prose">
-            <RecentActivity entries={recentEntries} />
+            <RecentActivity entries={recentEntries} projectNames={projectNames} />
           </div>
         </section>
       )}

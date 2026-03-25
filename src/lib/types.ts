@@ -3,6 +3,7 @@ export interface EntryFrontmatter {
   project: string; // kebab-case project identifier
   session: string; // human-readable session title
   tags: string[]; // e.g., ["infrastructure", "launch"]
+  type: "session" | "ship" | "debut"; // defaults to "session" if absent
 }
 
 export interface Entry {

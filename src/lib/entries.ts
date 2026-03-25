@@ -7,7 +7,7 @@ import remarkRehype from "remark-rehype";
 import rehypeSanitize from "rehype-sanitize";
 import rehypeStringify from "rehype-stringify";
 import type { Entry, EntryFrontmatter, ProjectSummary } from "./types";
-import { PROJECT_NAMES } from "./config";
+import { getAllProjects } from "./projects";
 
 const ENTRIES_DIR = path.join(process.cwd(), "content", "entries");
 
@@ -36,8 +36,11 @@ export async function getAllEntries(): Promise<Entry[]> {
       const { data, content } = matter(fileContents);
       const html = await markdownToHtml(content);
 
+      const frontmatter = data as EntryFrontmatter;
+      if (!frontmatter.type) frontmatter.type = "session";
+
       return {
-        frontmatter: data as EntryFrontmatter,
+        frontmatter,
         slug,
         content: html,
       };
@@ -50,7 +53,9 @@ export async function getAllEntries(): Promise<Entry[]> {
 }
 
 export async function getProjects(): Promise<ProjectSummary[]> {
-  const entries = await getAllEntries();
+  const [entries, supabaseProjects] = await Promise.all([getAllEntries(), getAllProjects()]);
+  const nameMap = new Map(supabaseProjects.map((p) => [p.id, p.displayName]));
+
   const projectMap = new Map<string, { count: number; lastActive: string }>();
 
   for (const entry of entries) {
@@ -66,7 +71,7 @@ export async function getProjects(): Promise<ProjectSummary[]> {
 
   return Array.from(projectMap.entries()).map(([id, { count, lastActive }]) => ({
     id,
-    displayName: PROJECT_NAMES[id] ?? id,
+    displayName: nameMap.get(id) ?? id,
     entryCount: count,
     lastActive,
   }));

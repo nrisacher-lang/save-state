@@ -1,9 +1,9 @@
 import Link from "next/link";
 import type { Entry } from "@/lib/types";
-import { PROJECT_NAMES, PROJECT_COLORS } from "@/lib/config";
 
 interface RecentActivityProps {
   entries: Entry[];
+  projectNames: Record<string, string>;
 }
 
 function formatDate(dateStr: string): string {
@@ -11,7 +11,7 @@ function formatDate(dateStr: string): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric" }).toUpperCase();
 }
 
-export default function RecentActivity({ entries }: RecentActivityProps) {
+export default function RecentActivity({ entries, projectNames }: RecentActivityProps) {
   return (
     <div>
       <ul className="mb-6">
@@ -34,12 +34,10 @@ export default function RecentActivity({ entries }: RecentActivityProps) {
               className="text-xs tracking-widest shrink-0 w-24"
               style={{
                 fontFamily: "var(--font-share-tech), monospace",
-                color: PROJECT_COLORS[entry.frontmatter.project] ?? "var(--text-muted)",
+                color: `var(--project-${entry.frontmatter.project}, var(--text-muted))`,
               }}
             >
-              {(
-                PROJECT_NAMES[entry.frontmatter.project] ?? entry.frontmatter.project
-              ).toUpperCase()}
+              {(projectNames[entry.frontmatter.project] ?? entry.frontmatter.project).toUpperCase()}
             </span>
             <span
               className="text-sm truncate"

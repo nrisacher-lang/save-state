@@ -1,15 +1,19 @@
 import Card from "./Card";
 import type { Entry } from "@/lib/types";
-import { PROJECT_NAMES } from "@/lib/config";
 
 interface EntryCardProps {
   entry: Entry;
   animationDelay?: number;
+  projectDisplayName?: string;
 }
 
-export default function EntryCard({ entry, animationDelay = 0 }: EntryCardProps) {
+export default function EntryCard({
+  entry,
+  animationDelay = 0,
+  projectDisplayName,
+}: EntryCardProps) {
   const { frontmatter, content } = entry;
-  const projectDisplayName = PROJECT_NAMES[frontmatter.project] ?? frontmatter.project;
+  const displayName = projectDisplayName ?? frontmatter.project;
 
   return (
     <div className="animate-entry" style={{ animationDelay: `${animationDelay}ms` }}>
@@ -26,7 +30,7 @@ export default function EntryCard({ entry, animationDelay = 0 }: EntryCardProps)
               border: `1px solid var(--project-${frontmatter.project})`,
             }}
           >
-            {projectDisplayName.toUpperCase()}
+            {displayName.toUpperCase()}
           </span>
           {frontmatter.tags.map((tag) => (
             <span
