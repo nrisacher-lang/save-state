@@ -62,3 +62,13 @@ export async function getProjectFeatures(projectId: string): Promise<Feature[]> 
   if (error) throw new Error(`Failed to fetch features for "${projectId}": ${error.message}`);
   return (data ?? []).map(mapFeature);
 }
+
+export async function getAllFeatures(): Promise<Feature[]> {
+  const { data, error } = await supabase
+    .from("features")
+    .select("*")
+    .order("sort_order", { ascending: true });
+
+  if (error) throw new Error(`Failed to fetch features: ${error.message}`);
+  return (data ?? []).map(mapFeature);
+}

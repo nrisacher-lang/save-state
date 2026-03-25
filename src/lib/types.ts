@@ -43,3 +43,74 @@ export interface Feature {
   shippedDate: string | null; // YYYY-MM-DD
   sortOrder: number;
 }
+
+export interface AnalyticsData {
+  overview: {
+    totalEntries: number;
+    totalProjects: number;
+    totalFeatures: number;
+    shippedFeatures: number;
+    inProgressFeatures: number;
+    plannedFeatures: number;
+    totalWords: number;
+    daysSinceLastEntry: number;
+    momentum: number; // 0-100
+    momentumComponents: {
+      recencyDays: number;
+      recentShipCount: number;
+      activeProjectCount: number;
+    };
+  };
+  cadence: {
+    avgDaysBetweenEntries: number;
+    longestGapDays: number;
+    currentStreakDays: number;
+    firstEntryDate: string | null;
+  };
+  focusScore: number; // Herfindahl index 0-1
+  focusLabel: string; // "DEEP FOCUS" | "BALANCED" | "BROAD SPREAD"
+  entriesByProject: {
+    projectId: string;
+    displayName: string;
+    color: string;
+    count: number;
+  }[];
+  featuresByProject: {
+    projectId: string;
+    displayName: string;
+    color: string;
+    shipped: number;
+    inProgress: number;
+    planned: number;
+    entryCount: number;
+  }[];
+  entriesByMonth: { month: string; count: number }[];
+  entryDates: string[]; // YYYY-MM-DD, sorted ascending — raw input for heatmap
+  currentlyBuilding: {
+    name: string;
+    projectId: string;
+    projectName: string;
+    projectColor: string;
+  }[];
+  whatsNext: {
+    name: string;
+    projectId: string;
+    projectName: string;
+    projectColor: string;
+  }[];
+  recentShipments: {
+    name: string;
+    projectId: string;
+    projectName: string;
+    projectColor: string;
+    shippedDate: string;
+  }[];
+  tagFrequency: { tag: string; count: number }[];
+  techStackFrequency: { tech: string; count: number }[];
+  wordCountByEntry: {
+    slug: string;
+    session: string;
+    project: string;
+    words: number;
+  }[];
+}

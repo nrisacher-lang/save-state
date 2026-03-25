@@ -16,7 +16,7 @@ The Understory Labs homepage — a living, dynamic portfolio and changelog. Show
 ## Project Structure
 
 - `src/app/` — Next.js App Router pages and root layout
-- `src/components/` — UI components (Card, Header, ProjectFilter, EntryCard, EntryList)
+- `src/components/` — UI components (Card, Header, Nav, ProjectFilter, EntryCard, EntryList, HeroSection, ProjectCard, ProjectGrid, RecentActivity, FeatureList, AmbientCanvas)
 - `src/lib/` — content engine (`entries.ts`), types, config
 - `content/entries/` — markdown changelog entries (source of truth for all content)
 - `scripts/` — CLI scaffolder (`new-entry.ts`)
@@ -24,7 +24,7 @@ The Understory Labs homepage — a living, dynamic portfolio and changelog. Show
 ## Commands
 
 - Dev: `npm run dev`
-- Build: `npm run build` (outputs to `out/` for static hosting)
+- Build: `npm run build` (dynamic SSR — deployed via Vercel)
 - New entry: `npm run new-entry`
 
 ## Conventions
