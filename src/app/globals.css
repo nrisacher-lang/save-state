@@ -124,6 +124,29 @@ button:focus-visible {
   transition: box-shadow 0.12s ease;
 }
 
+/* ─── Ship / Debut entry cards ───────────────────────────────────────────── */
+/* --card-project-color is set inline by Card.tsx for ship and debut variants. */
+
+.card-ship {
+  border: 1px solid var(--card-project-color);
+  background: color-mix(in srgb, var(--card-project-color) 6%, var(--bg-surface));
+  box-shadow: 0 0 14px -3px color-mix(in srgb, var(--card-project-color) 28%, transparent);
+}
+
+.card-ship:hover {
+  background: color-mix(in srgb, var(--card-project-color) 10%, var(--bg-surface));
+}
+
+.card-debut {
+  border: 1px solid var(--card-project-color);
+  background: color-mix(in srgb, var(--card-project-color) 8%, var(--bg-surface));
+  box-shadow: 0 0 18px -3px color-mix(in srgb, var(--card-project-color) 32%, transparent);
+}
+
+.card-debut:hover {
+  background: color-mix(in srgb, var(--card-project-color) 12%, var(--bg-surface));
+}
+
 /* ─── Title line glow ────────────────────────────────────────────────────── */
 /* Separator line beneath section headers — synced to card breathing.         */
 

@@ -71,9 +71,10 @@ The Understory Labs homepage — a living, dynamic portfolio and changelog. Show
 ## Data Lifecycle
 
 - **Session-end:** run `/wrap` to save memory and generate a voice-matched changelog entry for approval. Supersedes `/log` for session-end use.
-- **Feature milestone:** `/ship` (Step 4 of data lifecycle plan) marks features as shipped in Supabase and generates celebration/debut entries.
+- **Feature milestone:** `/ship <project-id> <feature-name>` marks a feature shipped in Supabase and generates a `type: ship` entry. `/ship new <project-id>` debuts a new project.
+- **Supabase write scripts:** `scripts/upsert-project.ts` (projects table + CSS var) and `scripts/update-feature.ts` (features table, update/insert, `--check` mode for dry-run).
 - **Voice profile:** `references/voice-profile.md` — loaded by `/wrap` and `/ship` when drafting entries. Edit this file to tune the writing style.
-- **Active plan:** `~/.claude/plans/save-state-data-lifecycle.md` — Steps 1–3 complete, Steps 4–6 remaining.
+- **Active plan:** `~/.claude/plans/save-state-data-lifecycle.md` — Steps 1–6 complete. Data lifecycle fully operational.
 
 ## Deferred Features
 
