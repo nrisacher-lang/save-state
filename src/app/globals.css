@@ -24,6 +24,7 @@
   --project-bark: #7baa8f;
   --project-save-state: #d4a574;
   --project-claude-code: #8a7bc4;
+  --project-lore: #8b1a1a;
 }
 
 /* Expose design tokens to Tailwind utilities */
