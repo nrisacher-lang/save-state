@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import * as dotenv from "dotenv";
+import * as fs from "fs";
 import * as path from "path";
 
 dotenv.config({ path: path.resolve(process.cwd(), ".env.local") });
@@ -73,6 +74,33 @@ async function main() {
   }
 
   console.log(`Project '${id}' added to Supabase.`);
+
+  // Write CSS variable to globals.css
+  const cssPath = path.resolve(process.cwd(), "src/app/globals.css");
+  const cssContent = fs.readFileSync(cssPath, "utf8");
+  const varName = `--project-${id}`;
+  if (cssContent.includes(varName)) {
+    console.log(`CSS var ${varName} already exists — no change.`);
+  } else {
+    const projectVarRegex = /[ \t]*--project-[a-z0-9-]+:\s*[^;]+;/g;
+    let lastMatch: RegExpExecArray | null = null;
+    let m: RegExpExecArray | null;
+    while ((m = projectVarRegex.exec(cssContent)) !== null) lastMatch = m;
+    if (lastMatch) {
+      const insertPos = lastMatch.index + lastMatch[0].length;
+      const indent = lastMatch[0].match(/^([ \t]*)/)![1];
+      const updated =
+        cssContent.slice(0, insertPos) +
+        `\n${indent}${varName}: ${color};` +
+        cssContent.slice(insertPos);
+      fs.writeFileSync(cssPath, updated, "utf8");
+      console.log(`Added CSS var: ${varName}: ${color};`);
+    } else {
+      console.warn(
+        `Could not find insertion point in globals.css — add manually: ${varName}: ${color};`
+      );
+    }
+  }
 }
 
 main().catch((err) => {
