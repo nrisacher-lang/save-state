@@ -2,7 +2,7 @@
 date: "2026-03-01"
 project: claude-code
 session: "Claude Code Setup — power user environment shipped"
-tags: [infrastructure, tooling, skills]
+tags: [infrastructure, tooling]
 type: ship
 ---
 

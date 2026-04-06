@@ -3,6 +3,7 @@ date: "2026-03-23"
 project: save-state
 session: "Save State — brainstorm and naming"
 tags: [brainstorm, naming, brand]
+type: session
 ---
 
 ## Features

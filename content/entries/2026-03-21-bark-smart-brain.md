@@ -2,7 +2,8 @@
 date: "2026-03-21"
 project: bark
 session: "Better Ears + Smart Brain — Claude-powered audio intelligence"
-tags: [feature, ai, audio, claude]
+tags: [feature, ai, audio]
+type: session
 ---
 
 ## Features

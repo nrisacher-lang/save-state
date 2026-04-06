@@ -3,6 +3,7 @@ date: "2026-03-08"
 project: current-os
 session: "Intelligence Foundation — corrections, lifecycle, normalization"
 tags: [infrastructure, ai, phase]
+type: session
 ---
 
 ## Features

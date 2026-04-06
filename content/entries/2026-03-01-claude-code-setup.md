@@ -2,7 +2,8 @@
 date: "2026-03-01"
 project: claude-code
 session: "Power user setup — Steps 1 through 8"
-tags: [infrastructure, tooling, skills]
+tags: [infrastructure, tooling]
+type: session
 ---
 
 ## Features

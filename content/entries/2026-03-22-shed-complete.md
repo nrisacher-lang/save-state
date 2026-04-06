@@ -3,6 +3,7 @@ date: "2026-03-22"
 project: current-os
 session: "Shed — Home Projects feature shipped"
 tags: [feature, ai, projects]
+type: session
 ---
 
 ## Features

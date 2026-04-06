@@ -3,6 +3,7 @@ date: "2026-03-23"
 project: save-state
 session: "Save State — built and deployed"
 tags: [launch, infrastructure, tooling]
+type: session
 ---
 
 ## Features

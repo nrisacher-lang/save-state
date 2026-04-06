@@ -9,10 +9,8 @@ type: session
 ## Features
 
 - Uptime Kuma deployed and running — monitoring dashboard live at port 3001 on docker-host (CT 100)
-- Vaultwarden container created (CT 101, IP 192.168.1.165) — Ubuntu 24.04, Docker installed,
-  compose deploy staged
-- Credential hygiene workflow established — Notepad scratch pad pattern now the standard for
-  all multi-step build sessions
+- Vaultwarden container created (CT 101, IP 192.168.1.165) — Ubuntu 24.04, Docker installed, compose deploy staged
+- Credential hygiene workflow established — Notepad scratch pad pattern now the standard for all multi-step build sessions
 
 ## Infrastructure
 
@@ -22,18 +20,15 @@ type: session
 
 ## Bug Fixes
 
-- Docker apt sources malformed — command substitution in Proxmox console split across lines;
-  fixed by hardcoding arch=amd64 and codename=noble directly in sources entry
+- Docker apt sources malformed — command substitution in Proxmox console split across lines; fixed by hardcoding arch=amd64 and codename=noble directly in sources entry
 - Ubuntu 24.04 blocks root SSH by default — fixed with sed replace on PermitRootLogin in sshd_config
 - Gateway misconfigured to 192.168.100.1 during Proxmox install — corrected to 192.168.1.1 in network UI
 
 ## Lessons
 
 - The Proxmox web console is unreliable for anything interactive — SSH first, console only as fallback
-- Interactive commands (passwd) produce no visible output in the console; non-interactive
-  alternatives (echo 'root:pass' | chpasswd) are the only reliable path
-- Credential amnesia is a real session hazard — the Notepad rule exists for a reason;
-  enforce it at session start, not after the first forgotten password
+- Interactive commands (passwd) produce no visible output in the console; non-interactive alternatives (echo 'root:pass' | chpasswd) are the only reliable path
+- Credential amnesia is a real session hazard — the Notepad rule exists for a reason; enforce it at session start, not after the first forgotten password
 
 ## TODO
 
