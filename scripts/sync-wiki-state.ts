@@ -69,7 +69,7 @@ interface GitInfo {
   branch: string;
 }
 
-const GIT_OPTS = { encoding: "utf-8" as const, stdio: ["pipe", "pipe", "pipe"] as const };
+const GIT_OPTS = { encoding: "utf-8" as const, stdio: "pipe" as const };
 
 function getGitInfo(repoPath: string): GitInfo | null {
   if (!existsSync(repoPath)) return null;
