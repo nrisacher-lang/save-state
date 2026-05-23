@@ -42,9 +42,16 @@ const PROJECT_PATHS: Record<string, string> = {
   "save-state": "C:/Users/nrisa/Projects/save-state",
   bark: "C:/Users/nrisa/Projects/discord-soundbite-bot",
   bud: "C:/Users/nrisa/Projects/bud",
-  homelab: "C:/Users/nrisa/Projects/homelab",
+  taproot: "C:/Users/nrisa/Projects/homelab",
   lore: "C:/Users/nrisa/Projects/lore",
   "understory-labs-site": "C:/Users/nrisa/Projects/understory-labs-site",
+  "claude-code": "C:/Users/nrisa/.claude",
+};
+
+// Projects that inherit status from a parent rather than syncing their own git activity.
+// Key: child project id, Value: parent project id.
+const STATUS_INHERITS_FROM: Record<string, string> = {
+  "kitchen-module": "current-os",
 };
 
 // ─── Arg parser ───────────────────────────────────────────────────────────────
@@ -160,6 +167,115 @@ async function syncProject(projectId: string): Promise<void> {
   }
 }
 
+// ─── Status sync ──────────────────────────────────────────────────────────────
+//
+// Infers projects.status from project_state.last_activity_at.
+// Rules:
+//   - "complete" is never touched (manual-only designation)
+//   - last_activity_at <= 30 days ago  → active
+//   - last_activity_at >  30 days ago  → paused
+//   - no project_state row             → planned
+//   - child projects (STATUS_INHERITS_FROM) copy their parent's status
+
+const ACTIVE_THRESHOLD_DAYS = 30;
+
+async function syncStatuses(): Promise<void> {
+  console.log("\nStatus sync\n");
+
+  // Fetch all non-complete projects
+  const { data: projects, error: projError } = await supabase
+    .from("projects")
+    .select("id, status, parent_id")
+    .neq("status", "complete");
+
+  if (projError || !projects) {
+    console.error(`  ! Failed to fetch projects: ${projError?.message}`);
+    return;
+  }
+
+  // Fetch all project_state rows
+  const { data: states } = await supabase
+    .from("project_state")
+    .select("project_id, last_activity_at");
+
+  const stateMap = new Map(
+    (states ?? []).map((s: { project_id: string; last_activity_at: string | null }) => [
+      s.project_id,
+      s.last_activity_at,
+    ])
+  );
+
+  const now = Date.now();
+  const thresholdMs = ACTIVE_THRESHOLD_DAYS * 24 * 60 * 60 * 1000;
+
+  // First pass: resolve status for all synced projects (non-inheriting)
+  const resolvedStatus = new Map<string, string>();
+
+  for (const project of projects) {
+    if (STATUS_INHERITS_FROM[project.id]) continue; // handled in second pass
+
+    const lastActivity = stateMap.get(project.id);
+    let newStatus: string;
+
+    if (!lastActivity) {
+      newStatus = "planned";
+    } else {
+      const age = now - new Date(lastActivity).getTime();
+      newStatus = age <= thresholdMs ? "active" : "paused";
+    }
+
+    resolvedStatus.set(project.id, newStatus);
+
+    if (newStatus !== project.status) {
+      if (!dryRun) {
+        const { error } = await supabase
+          .from("projects")
+          .update({ status: newStatus })
+          .eq("id", project.id);
+        if (error) {
+          console.error(`  ! [${project.id}] Status update failed: ${error.message}`);
+          continue;
+        }
+      }
+      console.log(
+        `  [${project.id}] ${project.status} → ${newStatus}${dryRun ? " (dry run)" : ""}`
+      );
+    } else {
+      console.log(`  [${project.id}] ${project.status} (unchanged)`);
+    }
+  }
+
+  // Second pass: children inherit from parent
+  for (const [childId, parentId] of Object.entries(STATUS_INHERITS_FROM)) {
+    const childProject = projects.find((p) => p.id === childId);
+    if (!childProject) continue;
+
+    const parentStatus = resolvedStatus.get(parentId);
+    if (!parentStatus) {
+      console.log(`  [${childId}] Parent ${parentId} not found or complete — skipping`);
+      continue;
+    }
+
+    if (parentStatus !== childProject.status) {
+      if (!dryRun) {
+        const { error } = await supabase
+          .from("projects")
+          .update({ status: parentStatus })
+          .eq("id", childId);
+        if (error) {
+          console.error(`  ! [${childId}] Status update failed: ${error.message}`);
+          continue;
+        }
+      }
+      console.log(
+        `  [${childId}] ${childProject.status} → ${parentStatus} (inherited from ${parentId})${dryRun ? " (dry run)" : ""}`
+      );
+    } else {
+      console.log(`  [${childId}] ${childProject.status} (inherited from ${parentId}, unchanged)`);
+    }
+  }
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -170,6 +286,8 @@ async function main() {
   for (const id of projectIds) {
     await syncProject(id);
   }
+
+  await syncStatuses();
 
   console.log(`\nDone.`);
 }
