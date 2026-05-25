@@ -26,6 +26,8 @@
   --project-claude-code: #8a7bc4;
   --project-lore: #8b1a1a;
   --project-taproot: #5c7a4e;
+  --project-bud: #8b5cf6;
+  --project-kitchen-module: #f59e0b;
 }
 
 /* Expose design tokens to Tailwind utilities */
