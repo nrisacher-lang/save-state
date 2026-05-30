@@ -58,6 +58,11 @@ const STATUS_INHERITS_FROM: Record<string, string> = {
 
 const WIKI_REPO_PATH = "C:/Users/nrisa/Projects/understory-labs-site";
 
+// Project IDs that don't match their wiki directory name.
+const WIKI_DIR_OVERRIDE: Record<string, string> = {
+  "current-os": "life-automation",
+};
+
 // Commit message prefixes / keywords that indicate a user-facing feature change.
 // These trigger the guide drift counter — bug fixes and chores do not.
 const FEATURE_PREFIXES = [
@@ -81,7 +86,8 @@ function isFeatureCommit(message: string): boolean {
 }
 
 function getGuideLastUpdated(projectId: string): string | null {
-  const relPath = `content/wiki/${projectId}/how-to-use.mdx`;
+  const wikiDir = WIKI_DIR_OVERRIDE[projectId] ?? projectId;
+  const relPath = `content/wiki/${wikiDir}/how-to-use.mdx`;
   try {
     const result = execSync(
       `git -C "${WIKI_REPO_PATH}" log -1 --format="%cI" -- "${relPath}"`,
