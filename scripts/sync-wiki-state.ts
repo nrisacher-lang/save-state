@@ -42,6 +42,7 @@ const PROJECT_PATHS: Record<string, string> = {
   "save-state": "C:/Users/nrisa/Projects/save-state",
   bark: "C:/Users/nrisa/Projects/discord-soundbite-bot",
   bud: "C:/Users/nrisa/Projects/bud",
+  codec: "C:/Users/nrisa/Projects/codec",
   taproot: "C:/Users/nrisa/Projects/homelab",
   lore: "C:/Users/nrisa/Projects/lore",
   "understory-labs-site": "C:/Users/nrisa/Projects/understory-labs-site",
