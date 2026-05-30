@@ -54,6 +54,45 @@ const STATUS_INHERITS_FROM: Record<string, string> = {
   "kitchen-module": "current-os",
 };
 
+// ─── Guide drift config ───────────────────────────────────────────────────────
+
+const WIKI_REPO_PATH = "C:/Users/nrisa/Projects/understory-labs-site";
+
+// Commit message prefixes / keywords that indicate a user-facing feature change.
+// These trigger the guide drift counter — bug fixes and chores do not.
+const FEATURE_PREFIXES = [
+  "feat:",
+  "ui:",
+  "design:",
+  "ship:",
+  "log:",
+  "add:",
+  "implement:",
+  "build:",
+];
+const FEATURE_KEYWORDS = ["add ", "new ", "implement", "redesign", "overhaul", "ship"];
+const NON_FEATURE_PREFIXES = ["fix:", "refactor:", "docs:", "chore:", "test:", "bump"];
+
+function isFeatureCommit(message: string): boolean {
+  const lower = message.toLowerCase();
+  if (NON_FEATURE_PREFIXES.some((p) => lower.startsWith(p))) return false;
+  if (FEATURE_PREFIXES.some((p) => lower.startsWith(p))) return true;
+  return FEATURE_KEYWORDS.some((k) => lower.includes(k));
+}
+
+function getGuideLastUpdated(projectId: string): string | null {
+  const relPath = `content/wiki/${projectId}/how-to-use.mdx`;
+  try {
+    const result = execSync(
+      `git -C "${WIKI_REPO_PATH}" log -1 --format="%cI" -- "${relPath}"`,
+      GIT_OPTS
+    ).trim();
+    return result || null;
+  } catch {
+    return null;
+  }
+}
+
 // ─── Arg parser ───────────────────────────────────────────────────────────────
 
 function getArg(name: string): string | undefined {
@@ -164,6 +203,53 @@ async function syncProject(projectId: string): Promise<void> {
     }
   } else {
     console.log(`    ✓ State updated (commit unchanged, no new event)`);
+  }
+}
+
+// ─── Guide drift sync ─────────────────────────────────────────────────────────
+
+async function syncGuideDrift(projectId: string): Promise<void> {
+  const guideLastUpdated = getGuideLastUpdated(projectId);
+
+  if (!guideLastUpdated) {
+    // No guide exists — sentinel value -1
+    if (!dryRun) {
+      await supabase
+        .from("project_state")
+        .upsert(
+          { project_id: projectId, guide_last_updated: null, guide_drift_count: -1 },
+          { onConflict: "project_id" }
+        );
+    }
+    console.log(`  [${projectId}] guide: no how-to-use.mdx`);
+    return;
+  }
+
+  // Fetch commits to this project since the guide was last updated
+  const { data: activities } = await supabase
+    .from("project_activity")
+    .select("summary")
+    .eq("project_id", projectId)
+    .eq("activity_type", "commit")
+    .gt("created_at", guideLastUpdated);
+
+  const driftCount = (activities ?? []).filter((a: { summary: string | null }) =>
+    isFeatureCommit(a.summary ?? "")
+  ).length;
+
+  console.log(
+    `  [${projectId}] guide: last updated ${guideLastUpdated.slice(0, 10)}, drift = ${driftCount} feature commit(s)`
+  );
+
+  if (!dryRun) {
+    await supabase.from("project_state").upsert(
+      {
+        project_id: projectId,
+        guide_last_updated: guideLastUpdated,
+        guide_drift_count: driftCount,
+      },
+      { onConflict: "project_id" }
+    );
   }
 }
 
@@ -288,6 +374,12 @@ async function main() {
   }
 
   await syncStatuses();
+
+  console.log(`\nGuide drift sync\n`);
+
+  for (const id of projectIds) {
+    await syncGuideDrift(id);
+  }
 
   console.log(`\nDone.`);
 }
