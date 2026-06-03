@@ -6,11 +6,11 @@
  *     --project-id=current-os \
  *     --title="Kitchen Module — shipped" \
  *     [--version="v1.0"] \
- *     [--body="Short description of what shipped."] \
- *     [--entry-slug="2026-05-18-kitchen-module-shipped"]
+ *     [--body="Short description of what shipped."]
  *
  * Uses service role key (bypasses RLS). Safe to run multiple times — each
  * call inserts a new row (release notes are not deduplicated by title).
+ * Table schema: id, project_id, version, title, content (NOT NULL), published_at, created_at
  */
 
 import { createClient } from "@supabase/supabase-js";
@@ -53,33 +53,32 @@ function requireArg(name: string): string {
 const projectId = requireArg("project-id");
 const title = requireArg("title");
 const version = getArg("version") ?? null;
-const body = getArg("body") ?? null;
-const entrySlug = getArg("entry-slug") ?? null;
+const content = getArg("body") ?? title; // content is NOT NULL — fall back to title if omitted
 
 console.log(`\nInserting release note:`);
 console.log(`  project:    ${projectId}`);
 console.log(`  title:      ${title}`);
 if (version) console.log(`  version:    ${version}`);
-if (body) console.log(`  body:       ${body.slice(0, 80)}${body.length > 80 ? "…" : ""}`);
-if (entrySlug) console.log(`  entry-slug: ${entrySlug}`);
+console.log(`  content:    ${content.slice(0, 80)}${content.length > 80 ? "…" : ""}`);
 
-const { data, error } = await supabase
-  .from("release_notes")
-  .insert({
-    project_id: projectId,
-    title,
-    version,
-    body,
-    entry_slug: entrySlug,
-    released_at: new Date().toISOString(),
-  })
-  .select("id")
-  .single();
+(async () => {
+  const { data, error } = await supabase
+    .from("release_notes")
+    .insert({
+      project_id: projectId,
+      title,
+      version,
+      content,
+      published_at: new Date().toISOString(),
+    })
+    .select("id")
+    .single();
 
-if (error) {
-  console.error(`\nInsert failed: ${error.message}`);
-  process.exit(1);
-}
+  if (error) {
+    console.error(`\nInsert failed: ${error.message}`);
+    process.exit(1);
+  }
 
-console.log(`\nInserted release note: ${data.id}`);
-console.log(`View at: /wiki/${projectId}/releases`);
+  console.log(`\nInserted release note: ${data.id}`);
+  console.log(`View at: /wiki/${projectId}/releases`);
+})();
