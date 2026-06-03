@@ -47,6 +47,8 @@ const PROJECT_PATHS: Record<string, string> = {
   lore: "C:/Users/nrisa/Projects/lore",
   "understory-labs-site": "C:/Users/nrisa/Projects/understory-labs-site",
   "claude-code": "C:/Users/nrisa/.claude",
+  "field-notes": "C:/Users/nrisa/Projects/field-notes",
+  peer: "C:/Users/nrisa/Projects/peer",
 };
 
 // Projects that inherit status from a parent rather than syncing their own git activity.
