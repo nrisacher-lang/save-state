@@ -124,6 +124,12 @@ interface GitInfo {
   branch: string;
 }
 
+interface CommitInfo {
+  hash: string;
+  message: string;
+  timestamp: string;
+}
+
 const GIT_OPTS = { encoding: "utf-8" as const, stdio: "pipe" as const };
 
 function getGitInfo(repoPath: string): GitInfo | null {
@@ -144,6 +150,24 @@ function getGitInfo(repoPath: string): GitInfo | null {
   }
 }
 
+// Returns all commits between sinceHash (exclusive) and HEAD (inclusive), oldest first.
+// Falls back to empty array if sinceHash is not in the local history.
+function getNewCommits(repoPath: string, sinceHash: string): CommitInfo[] {
+  try {
+    const output = execSync(
+      `git -C "${repoPath}" log "${sinceHash}..HEAD" --format="%H|%s|%cI" --reverse`,
+      GIT_OPTS
+    ).trim();
+    if (!output) return [];
+    return output.split("\n").map((line) => {
+      const [hash, message, timestamp] = line.split("|");
+      return { hash, message, timestamp };
+    });
+  } catch {
+    return [];
+  }
+}
+
 // ─── Sync one project ─────────────────────────────────────────────────────────
 
 async function syncProject(projectId: string): Promise<void> {
@@ -161,29 +185,36 @@ async function syncProject(projectId: string): Promise<void> {
 
   console.log(`  [${projectId}] ${git.branch} @ ${git.hash.slice(0, 7)} — ${git.message}`);
 
-  // Fetch existing state to detect if commit changed
+  // Fetch existing state to get the last synced commit hash
   const { data: existingState } = await supabase
     .from("project_state")
-    .select("last_commit_message, active_branch")
+    .select("last_commit_message, last_commit_hash, active_branch")
     .eq("project_id", projectId)
     .maybeSingle();
 
-  const commitChanged = !existingState || existingState.last_commit_message !== git.message;
+  const lastHash = existingState?.last_commit_hash ?? null;
+  const atHead = lastHash === git.hash;
 
   if (dryRun) {
-    if (commitChanged) {
-      console.log(`    → Would upsert state + insert commit event (new commit detected)`);
+    if (atHead) {
+      console.log(`    → Already at HEAD, would skip`);
+    } else if (lastHash) {
+      const newCommits = getNewCommits(repoPath, lastHash);
+      console.log(
+        `    → Would insert ${newCommits.length} new commit event(s) since ${lastHash.slice(0, 7)}`
+      );
     } else {
-      console.log(`    → Commit unchanged, would skip activity insert`);
+      console.log(`    → No prior hash — would insert HEAD commit event`);
     }
     return;
   }
 
-  // Upsert project_state
+  // Upsert project_state with current HEAD
   const { error: stateError } = await supabase.from("project_state").upsert(
     {
       project_id: projectId,
       last_commit_message: git.message,
+      last_commit_hash: git.hash,
       last_activity_at: git.timestamp,
       active_branch: git.branch,
       updated_at: new Date().toISOString(),
@@ -196,23 +227,37 @@ async function syncProject(projectId: string): Promise<void> {
     return;
   }
 
-  // Insert activity event only if commit changed
-  if (commitChanged) {
+  if (atHead) {
+    console.log(`    ✓ State updated (already at HEAD, no new events)`);
+    return;
+  }
+
+  // Walk all commits since the last synced hash (or just HEAD if no prior hash)
+  const newCommits = lastHash ? getNewCommits(repoPath, lastHash) : [git];
+
+  if (newCommits.length === 0) {
+    console.log(`    ✓ State updated (no new commits found since ${lastHash?.slice(0, 7)})`);
+    return;
+  }
+
+  let inserted = 0;
+  for (const commit of newCommits) {
     const { error: actError } = await supabase.from("project_activity").insert({
       project_id: projectId,
       activity_type: "commit",
-      summary: git.message,
-      created_at: git.timestamp,
+      summary: commit.message,
+      created_at: commit.timestamp,
     });
-
     if (actError) {
-      console.error(`    ! Activity insert failed: ${actError.message}`);
+      console.error(
+        `    ! Activity insert failed for ${commit.hash.slice(0, 7)}: ${actError.message}`
+      );
     } else {
-      console.log(`    ✓ State updated + commit event inserted`);
+      inserted++;
     }
-  } else {
-    console.log(`    ✓ State updated (commit unchanged, no new event)`);
   }
+
+  console.log(`    ✓ State updated + ${inserted} commit event(s) inserted`);
 }
 
 // ─── Guide drift sync ─────────────────────────────────────────────────────────
